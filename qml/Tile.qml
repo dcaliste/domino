@@ -22,10 +22,10 @@ Item {
     id: tile
 
     property int size: Theme.itemSizeSmall
-    property alias leftId: left.id
-    property alias rightId: right.id
+    property alias leftId: left.value
+    property alias rightId: right.value
 
-    property bool _rotated: left.id == right.id
+    property bool _rotated: left.value == right.value
 
     width: _rotated ? size : 2 * size
     height: _rotated ? 2 * size : size

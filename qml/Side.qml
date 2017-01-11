@@ -19,7 +19,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 Item {
-    property int id
+    property int value
     property int dotSize: width / 6
     property int margin: dotSize / 4
 
@@ -39,7 +39,7 @@ Item {
         radius: width / 2
         color: Theme.highlightColor
         anchors.centerIn: parent
-        visible: id == 1 || id == 3 || id == 5
+        visible: value == 1 || value == 3 || value == 5
     }
     Rectangle {
         width: dotSize
@@ -50,7 +50,7 @@ Item {
         anchors.rightMargin: parent.width / 4 - width / 2
         anchors.top: parent.top
         anchors.topMargin: parent.height / 4 - width / 2
-        visible: id == 2 || id == 3 || id == 4 || id == 5 || id == 6
+        visible: value == 2 || value == 3 || value == 4 || value == 5 || value == 6
     }
     Rectangle {
         width: dotSize
@@ -61,7 +61,7 @@ Item {
         anchors.leftMargin: parent.width / 4 - width / 2
         anchors.top: parent.top
         anchors.topMargin: parent.height / 4 - width / 2
-        visible: id == 4 || id == 5 || id == 6
+        visible: value == 4 || value == 5 || value == 6
     }
     Rectangle {
         width: dotSize
@@ -72,7 +72,7 @@ Item {
         anchors.leftMargin: parent.width / 4 - width / 2
         anchors.bottom: parent.bottom
         anchors.bottomMargin: parent.height / 4 - width / 2
-        visible: id == 2 || id == 3 || id == 4 || id == 5 || id == 6
+        visible: value == 2 || value == 3 || value == 4 || value == 5 || value == 6
     }
     Rectangle {
         width: dotSize
@@ -83,7 +83,7 @@ Item {
         anchors.rightMargin: parent.width / 4 - width / 2
         anchors.bottom: parent.bottom
         anchors.bottomMargin: parent.height / 4 - width / 2
-        visible: id == 4 || id == 5 || id == 6
+        visible: value == 4 || value == 5 || value == 6
     }
     Rectangle {
         width: dotSize
@@ -93,7 +93,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: parent.height / 4 - width / 2
-        visible: id == 6
+        visible: value == 6
     }
     Rectangle {
         width: dotSize
@@ -103,6 +103,6 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.topMargin: parent.height / 4 - width / 2
-        visible: id == 6
+        visible: value == 6
     }
 }
