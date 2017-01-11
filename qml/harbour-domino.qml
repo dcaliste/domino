@@ -24,11 +24,47 @@ ApplicationWindow {
     //cover: cover
     _defaultPageOrientations: Orientation.All
 
+    function pMiss(digit, nPool, visibleDistribution, nHand) {
+        // Return the probability that @digit is missing in
+        // a set of @nHand dominos, when the size of the pool of total
+        // number of dominos is @nPool and the distribution of visible
+        // digits is given by @visibleDistribution
+        var p = 1.
+        for (var i = 0; i < nHand; i++) {
+            p *= (nPool - i - (7. - visibleDistribution[digit])) / (nPool - i)
+        }
+        return p
+    }
+
     Page {
         id: page
 
         ListModel {
             id: game
+            property var distribution: [0, 0, 0, 0, 0, 0, 0]
+            signal changed()
+            onCountChanged: {
+                if (!count) return
+
+                var last = game.get(count - 1)
+                distribution[last.left] += 1
+                if (last.left != last.right) {
+                    distribution[last.right] += 1
+                }
+                changed()
+            }
+            Component.onCompleted: {
+                if (!count) return
+
+                for (var i = 0; i < count; i++) {
+                    var last = game.get(i)
+                    distribution[last.left] += 1
+                    if (last.left != last.right) {
+                        distribution[last.right] += 1
+                    }
+                }
+                changed()
+            }
             ListElement {left: 5; right: 2}
             ListElement {left: 2; right: 6}
             ListElement {left: 6; right: 6}
@@ -62,6 +98,31 @@ ApplicationWindow {
             HorizontalScrollDecorator {
                 flickable: board
             }
+        }
+
+        MissingIndicator {
+            id: help
+            property var proba: [0., 0., 0., 0., 0., 0., 0.]
+
+            function update() {
+                var proba = []
+                for (var i = 0; i < 7; i++) {
+                    proba.push(app.pMiss(i, 28, game.distribution, 4))
+                }
+                help.proba = proba
+            }
+
+            Connections {
+                target: game
+                onChanged: help.update()
+            }
+
+            model: proba
+            size: page.isPortrait ? page.height / 21 : page.width / 21
+            anchors.bottom: page.bottom
+            anchors.right: page.right
+            width: page.isPortrait ? size + Theme.itemSizeMedium : page.width
+            height: page.isPortrait ? 7 * size : size
         }
     }
 }
