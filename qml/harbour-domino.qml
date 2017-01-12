@@ -39,39 +39,30 @@ ApplicationWindow {
     Page {
         id: page
 
-        ListModel {
+        SetModel {
             id: game
-            property var distribution: [0, 0, 0, 0, 0, 0, 0]
-            signal changed()
-            onCountChanged: {
-                if (!count) return
-
-                var last = game.get(count - 1)
-                distribution[last.left] += 1
-                if (last.left != last.right) {
-                    distribution[last.right] += 1
-                }
-                changed()
-            }
             Component.onCompleted: {
-                if (!count) return
-
-                for (var i = 0; i < count; i++) {
-                    var last = game.get(i)
-                    distribution[last.left] += 1
-                    if (last.left != last.right) {
-                        distribution[last.right] += 1
-                    }
-                }
-                changed()
+                append({'left': 5, 'right': 2})
+                append({'left': 2, 'right': 6})
+                append({'left': 6, 'right': 6})
+                append({'left': 6, 'right': 0})
+                append({'left': 0, 'right': 0})
+                append({'left': 0, 'right': 3})
+                append({'left': 3, 'right': 4})
             }
-            ListElement {left: 5; right: 2}
-            ListElement {left: 2; right: 6}
-            ListElement {left: 6; right: 6}
-            ListElement {left: 6; right: 0}
-            ListElement {left: 0; right: 0}
-            ListElement {left: 0; right: 3}
-            ListElement {left: 3; right: 4}
+        }
+
+        SetModel {
+            id: hand
+            Component.onCompleted: {
+                append({'left': 5, 'right': 4})
+                append({'left': 0, 'right': 3})
+                append({'left': 0, 'right': 5})
+                append({'left': 6, 'right': 1})
+                append({'left': 6, 'right': 5})
+                append({'left': 4, 'right': 6})
+                append({'left': 3, 'right': 2})
+            }
         }
 
         SilicaFlickable {
@@ -100,29 +91,79 @@ ApplicationWindow {
             }
         }
 
-        MissingIndicator {
-            id: help
-            property var proba: [0., 0., 0., 0., 0., 0., 0.]
+        Rectangle {
+            width: page.width
+            height: page.height / 3
+            anchors.bottom: parent.bottom
 
-            function update() {
-                var proba = []
-                for (var i = 0; i < 7; i++) {
-                    proba.push(app.pMiss(i, 28, game.distribution, 4))
+            gradient: Gradient {
+                GradientStop {position: 0.; color: Theme.highlightDimmerColor}
+                GradientStop {position: 1.; color: Theme.rgba(Theme.highlightDimmerColor, 0.75)}
+            }
+
+            MissingIndicator {
+                id: help
+                property var proba: [0., 0., 0., 0., 0., 0., 0.]
+
+                function update() {
+                    var proba = []
+                    var distribution = [0, 0, 0, 0, 0, 0, 0]
+                    for (var i = 0; i < 7; i++) {
+                        distribution[i] += game.distribution[i]
+                        distribution[i] += hand.distribution[i]
+                    }
+                    for (var i = 0; i < 7; i++) {
+                        proba.push(app.pMiss(i, 28, distribution, 4))
+                    }
+                    help.proba = proba
                 }
-                help.proba = proba
+
+                Connections {
+                    target: game
+                    onChanged: help.update()
+                }
+                Connections {
+                    target: hand
+                    onChanged: help.update()
+                }
+
+                model: proba
+                size: page.isPortrait ? page.height / 21 : page.width / 21
+                anchors.top: parent.top
+                anchors.right: parent.right
+                width: page.isPortrait ? size + Theme.itemSizeMedium : page.width
+                height: page.isPortrait ? 7 * size : size
             }
 
-            Connections {
-                target: game
-                onChanged: help.update()
+            Item {
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                width: page.isPortrait ? parent.width - help.width : parent.width
+                height: page.isPortrait ? parent.height : parent.height - help.height
+                Flow {
+                    id: handFlow
+                    property real size: Math.min(page.isPortrait
+                                                 ? parent.height / 4 - Theme.paddingSmall
+                                                 : (parent.width / 7 - Theme.paddingSmall) / 2
+                                                 , Theme.itemSizeExtraSmall)
+                    anchors.centerIn: parent
+                    width: page.isPortrait
+                    ? size * 4 + Theme.paddingSmall
+                    : hand.count * 2 * size + (hand.count - 1) * Theme.paddingSmall
+                    height: page.isPortrait
+                    ? Math.ceil(hand.count / 2) * size + (Math.ceil(hand.count / 2) - 1) * Theme.paddingSmall
+                    : size
+                    spacing: Theme.paddingSmall
+                    Repeater {
+                        model: hand
+                        delegate: Tile {
+                            size: handFlow.size
+                            leftId: model.left
+                            rightId: model.right
+                        }
+                    }
+                }
             }
-
-            model: proba
-            size: page.isPortrait ? page.height / 21 : page.width / 21
-            anchors.bottom: page.bottom
-            anchors.right: page.right
-            width: page.isPortrait ? size + Theme.itemSizeMedium : page.width
-            height: page.isPortrait ? 7 * size : size
         }
     }
 }
